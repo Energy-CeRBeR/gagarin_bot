@@ -13,3 +13,7 @@ USER_COMMANDS: dict = {
     },
     "/profile": ""
 }
+
+SURVEY_QUESTIONS = {
+    0: 'Введите ваше ФИО'
+}
