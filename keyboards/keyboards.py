@@ -43,11 +43,11 @@ def create_show_keyboard():
     return show_keyboard
 
 
-def create_yes_no_keyboard():
+def create_yes_no_keyboard(command_type: str):
     survey_keyboard = InlineKeyboardMarkup(inline_keyboard=
     [
-        [InlineKeyboardButton(text='Да', callback_data='YES')],
-        [InlineKeyboardButton(text='Нет', callback_data='NO')]
+        [InlineKeyboardButton(text='Да', callback_data=f'{command_type}_YES')],
+        [InlineKeyboardButton(text='Нет', callback_data=f'{command_type}_NO')]
     ]
     )
 

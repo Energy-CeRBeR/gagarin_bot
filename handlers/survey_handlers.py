@@ -9,6 +9,7 @@ from messages.survey_messages import SECTION_1_QUESTIONS, SECTION_2_QUESTIONS, I
 from keyboards.keyboards import create_survey_keyboard, create_show_keyboard, create_yes_no_keyboard
 
 from yaGPT.queries import get_epitaph, get_biography
+from memoryCode.queries import update_page
 
 from services.services import check_date, get_answers
 
@@ -125,33 +126,36 @@ async def show_results(callback: CallbackQuery):
     await callback.message.answer(text)
     await callback.message.answer(
         text="Заполнить поля с биографией и эпитафией?",
-        reply_markup=create_yes_no_keyboard()
+        reply_markup=create_yes_no_keyboard("show")
     )
 
 
-@router.callback_query(F.data == "YES" or F.data == "NO")
+@router.callback_query(F.data == "show_YES" or F.data == "show_NO")
 async def fill_data(callback: CallbackQuery):
+    cur_user = user_db[callback.from_user.id]
+    section_1 = cur_user["section_1_answers"]
+    section_2 = cur_user["section_2_answers"]
+    AI_biography = "Не сгенерировано"
+    AI_epitaph = "Не сгенерировано"
+
     if callback.data == "NO":
         await callback.message.delete()
         await callback.message.answer("Всё готово к отправке на сайт!")
     else:
         await callback.message.delete()
-        cur_user = user_db[callback.from_user.id]
-        section_1 = cur_user["section_1_answers"]
-        section_2 = cur_user["section_2_answers"]
 
         info = section_1[:5] + section_2 + section_1[6:9]
 
         try:
             AI_epitaph = get_epitaph(info)
         except KeyError:
-            AI_epitaph = "Ошибка генерации"
+            ...
         user_db[callback.from_user.id]["epitaph"] = AI_epitaph
 
         try:
             AI_biography = get_biography(info)
         except KeyError:
-            AI_biography = "Ошибка генерации"
+            ...
         user_db[callback.from_user.id]["biography"] = AI_biography
 
         text = (f"Эпитафия:\n"
@@ -160,3 +164,7 @@ async def fill_data(callback: CallbackQuery):
                 f"{AI_biography}")
 
         await callback.message.answer(text)
+
+    await callback.message.answer("Данные отправляются на сайт. Пожалуйста, подождите!")
+    update_page(cur_user["token"], cur_user["cur_page_slug"], AI_epitaph, AI_biography, section_1, section_2)
+    await callback.message.answer("Данные успешно загружены!")

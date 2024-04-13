@@ -34,7 +34,7 @@ def get_pages(token):
     return response
 
 
-def update_page(token: str, slug: str, base_args: list = [], biography_args: list = []):
+def update_page(token: str, slug: str, epitaph: str, biography: str, base_args: list, family_args: list):
     url = f"https://mc.dev.rand.agency/api/page/{slug}"
 
     headers = {
@@ -44,36 +44,35 @@ def update_page(token: str, slug: str, base_args: list = [], biography_args: lis
     }
 
     data = {
-        "name": "ТЕСТ ХАК",
+        "name": base_args[0],
         "start": {
-            "day": "02",
-            "month": "01",
-            "year": 1728
+            "day": base_args[1].split(".")[0],
+            "month": base_args[1].split(".")[1],
+            "year": base_args[1].split(".")[2]
         },
         "end": {
-            "day": "03",
-            "month": "01",
-            "year": 2024,
+            "day": base_args[2].split(".")[0],
+            "month": base_args[2].split(".")[1],
+            "year": base_args[2].split(".")[2]
         },
-        "epitaph": "КРАТКАЯ ЭПИТАФИЯ",
+        "epitaph": epitaph,
         "author_epitaph": "АВТоР з",
         "page_type_id": "1",
-        "burial_place": "Москва",
         "biographies": [
             {
-                "title": "1 часть ЗАГОЛОВОК ВСТУПЛЕНИЯ",
-                "description": "ТЕКСТ ВСТУПЛЕНИЯ1",
+                "title": base_args[9],
+                "description": biography + "1",
                 "order": 1
 
             },
             {
-                "title": "2 часть ЗАГОЛОВОК ВСТУПЛЕНИЯ",
-                "description": "ТЕКСТ ВСТУПЛЕНИЯ2",
+                "title": base_args[10],
+                "description": biography + "2",
                 "order": 2
             },
             {
-                "title": "3 часть ЗАГОЛОВОК ВСТУПЛЕНИЯ",
-                "description": "ТЕКСТ ВСТУПЛЕНИЯ3",
+                "title": base_args[11],
+                "description": biography + "3",
                 "order": 3
             },
             {
@@ -84,35 +83,35 @@ def update_page(token: str, slug: str, base_args: list = [], biography_args: lis
         "page_information": [
             {
                 "title": "pageInformation.placeOfBirth",
-                "description": "МЕСТО РОЖДЕНИЯ",
+                "description": base_args[3],
             },
             {
                 "title": "pageInformation.placeOfDeath",
-                "description": "МЕСТО СМЕРТИ",
+                "description": base_args[4],
             },
             {
                 "title": "pageInformation.children",
-                "description": "ДЕТИ",
+                "description": family_args[1],
             },
             {
                 "title": "^pageInformation.wife||pageInformation.husband",
-                "description": "СУПРУГА\n",
+                "description": family_args[0],
             },
             {
                 "title": "pageInformation.citizenship",
-                "description": "ГРАЖДАНСТВО",
+                "description": base_args[5],
             },
             {
                 "title": "pageInformation.education",
-                "description": "ОБРАЗОВАНИЕ",
+                "description": base_args[6],
             },
             {
                 "title": "pageInformation.occupation",
-                "description": "РОД ДЕЯТЕЛЬНОСТИ",
+                "description": base_args[7],
             },
             {
                 "title": "pageInformation.awards",
-                "description": "НАГРАДЫ, ПРЕМИИ И ДОСТИЖЕНИЯ",
+                "description": base_args[8],
             }
         ],
     }
@@ -136,5 +135,5 @@ if __name__ == "__main__":
     print(page_slug)
     print()
 
-    upd = update_page(site_token, page_slug)
-    print(upd)
+    # upd = update_page(site_token, page_slug)
+    # print(upd)
