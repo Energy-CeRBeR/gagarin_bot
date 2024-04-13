@@ -6,7 +6,7 @@ from aiogram.filters import CommandStart, Command, CommandObject, StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
 
-from messages.messages import USER_MESSAGES, USER_COMMANDS
+from messages.user_messages import USER_MESSAGES, USER_COMMANDS
 
 from database.database import user_db, db_template
 
@@ -52,6 +52,7 @@ async def get_profile_info(message: Message):
         await message.answer(USER_COMMANDS[message.text]["no_token"])
 
 
+# Обработка нажатия кнопки для отмены операции
 @router.callback_query(F.data == "back")
 async def back_button_clicked(callback: CallbackQuery):
     await callback.message.delete()
@@ -106,33 +107,3 @@ async def select_page_for_fill(message: Message):
         )
     else:
         await message.answer(USER_COMMANDS[message.text]["no_token"])
-
-
-# Обработка нажатия кнопки для отмены операции
-
-
-# Начало опроса
-@router.callback_query(F.data[:9] == "fill_page")
-async def start_survey(callback: CallbackQuery, state: FSMContext):
-    user_db[callback.from_user.id]["cur_page_slug"] = int(callback.data[9:])
-
-    await callback.message.answer(text=USER_MESSAGES['start_survey_section_1'])
-
-    # Задаётся вопрос с нужным индексом
-    await callback.message.answer(text=SECTION_1_QUESTIONS[user_db[callback.from_user.id]['question_index']])
-    user_db[callback.from_user.id]['question_index'] += 1
-
-    await state.set_state(UserSurveyStates.survey_section_1)
-
-
-# Обработка вопросов секции 1
-@router.message(UserSurveyStates.survey_section_1)
-async def section_1_processing(message: Message, state: FSMContext):
-    user_db[message.from_user.id]['section_1_answers'].append(message.text)
-    print(user_db[message.from_user.id])
-    if user_db[message.from_user.id]['question_index'] < len(SECTION_1_QUESTIONS):
-        await message.answer(text=SECTION_1_QUESTIONS[user_db[message.from_user.id]['question_index']])
-        user_db[message.from_user.id]['question_index'] += 1
-        if user_db[message.from_user.id]['question_index'] == 14:
-            pass
-

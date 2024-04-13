@@ -1,6 +1,6 @@
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
-from messages.messages import BUTTONS_TEXT
+from messages.user_messages import BUTTONS_TEXT
 
 
 def create_pages_keyboard(pages: list[dict], param: str):
