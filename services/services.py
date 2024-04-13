@@ -1,7 +1,5 @@
 import re
 
-from database.database import user_db
-
 from messages.survey_messages import SECTION_1_QUESTIONS, SECTION_2_QUESTIONS
 
 
@@ -15,7 +13,7 @@ def check_date(str_date):
 
 
 def get_answers(section1: list, section2: list):
-    result = "Текущие данные: "
+    result = "Данные, введённые Вами: "
     for i in range(len(SECTION_1_QUESTIONS)):
         cur_str = f"{SECTION_1_QUESTIONS[i]}: {section1[i]}\n"
         result += cur_str
@@ -24,5 +22,11 @@ def get_answers(section1: list, section2: list):
     for i in range(len(SECTION_2_QUESTIONS)):
         cur_str = f"{SECTION_2_QUESTIONS[i]}: {section2[i]}\n"
         result += cur_str
+
+    '''result += "Данные, сгенерированные искусственным интеллектом:\n"
+    result += "Эпитафия:\n"
+    result += epitaph + "\n\n"
+    result += "Биография:\n"
+    result += "\n".join(q for q in biography)'''
 
     return result

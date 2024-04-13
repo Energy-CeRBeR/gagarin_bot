@@ -12,8 +12,7 @@ class UserSurveyStates(StatesGroup):
 
     # Вопросы с выбором варианта
     get_spouse = State()
-    get_childrens = State()
-
+    get_children = State()
     check_answers = State()
 
 

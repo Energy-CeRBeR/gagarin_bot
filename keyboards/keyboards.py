@@ -31,3 +31,24 @@ def create_survey_keyboard():
     )
 
     return survey_keyboard
+
+
+def create_show_keyboard():
+    show_keyboard = InlineKeyboardMarkup(inline_keyboard=
+    [
+        [InlineKeyboardButton(text='Просмотреть результаты', callback_data='show_results')]
+    ]
+    )
+
+    return show_keyboard
+
+
+def create_yes_no_keyboard():
+    survey_keyboard = InlineKeyboardMarkup(inline_keyboard=
+    [
+        [InlineKeyboardButton(text='Да', callback_data='YES')],
+        [InlineKeyboardButton(text='Нет', callback_data='NO')]
+    ]
+    )
+
+    return survey_keyboard
