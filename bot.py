@@ -6,10 +6,6 @@ from config_data.config import Config, load_config
 from handlers.user_handlers import router as user_router
 from handlers.survey_handlers import router as survey_router
 
-'''
-В данном модуле происходит выгрузка данных из .env, подключение всех роутеров, запуск бота
-'''
-
 
 async def main():
     config: Config = load_config(".env")

@@ -36,6 +36,9 @@ async def start_bot(message: Message):
 # Главное меню
 @router.message(Command(commands="menu"))
 async def to_main_menu(message: Message):
+    if message.from_user.id not in user_db:
+        user_db[message.from_user.id] = deepcopy(db_template)
+
     if message.from_user.id in user_db:
         token = user_db[message.from_user.id]["token"]
         user_db[message.from_user.id] = deepcopy(db_template)
@@ -49,6 +52,9 @@ async def to_main_menu(message: Message):
 # В противном случае предложить авторизоваться
 @router.message(Command(commands="profile"))
 async def get_profile_info(message: Message):
+    if message.from_user.id not in user_db:
+        user_db[message.from_user.id] = deepcopy(db_template)
+
     cur_user = user_db[message.from_user.id]
     if cur_user["token"]:
         pages = get_pages(cur_user["token"])
@@ -69,6 +75,9 @@ async def back_button_clicked(callback: CallbackQuery):
 # Начало регистрации
 @router.message(Command(commands="auth"))
 async def start_auth(message: Message, state: FSMContext):
+    if message.from_user.id not in user_db:
+        user_db[message.from_user.id] = deepcopy(db_template)
+
     if message.from_user.id in user_db:
         token = user_db[message.from_user.id]["token"]
         user_db[message.from_user.id] = deepcopy(db_template)
@@ -90,6 +99,9 @@ async def exit_from_profile(message: Message):
 # Валидация введённой почты, продолжение регистрации
 @router.message(AuthState.get_email)
 async def continue_auth(message: Message, state: FSMContext):
+    if message.from_user.id not in user_db:
+        user_db[message.from_user.id] = deepcopy(db_template)
+
     user_email = message.text
     if validate_email(user_email):
         user_db[message.from_user.id]["email"] = user_email
@@ -102,6 +114,9 @@ async def continue_auth(message: Message, state: FSMContext):
 # Завершение регистрации
 @router.message(AuthState.get_password)
 async def continue_auth(message: Message, state: FSMContext):
+    if message.from_user.id not in user_db:
+        user_db[message.from_user.id] = deepcopy(db_template)
+
     user_password = message.text
     user_email = user_db[message.from_user.id]["email"]
     token = get_token(user_email, user_password)
@@ -117,6 +132,9 @@ async def continue_auth(message: Message, state: FSMContext):
 # Подготовка к заполнению страницы
 @router.message(Command(commands="fill_page"))
 async def select_page_for_fill(message: Message):
+    if message.from_user.id not in user_db:
+        user_db[message.from_user.id] = deepcopy(db_template)
+
     if message.from_user.id in user_db:
         token = user_db[message.from_user.id]["token"]
         user_db[message.from_user.id] = deepcopy(db_template)

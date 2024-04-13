@@ -25,6 +25,9 @@ router = Router()
 # Начало опроса
 @router.callback_query(F.data[:9] == "fill_page")
 async def start_survey(callback: CallbackQuery, state: FSMContext):
+    if callback.from_user.id not in user_db:
+        user_db[callback.from_user.id] = deepcopy(db_template)
+        
     user_db[callback.from_user.id]["cur_page_slug"] = int(callback.data[9:])
 
     await callback.message.answer(text=USER_MESSAGES['start_survey_section_1'])
@@ -38,6 +41,9 @@ async def start_survey(callback: CallbackQuery, state: FSMContext):
 
 @router.message(UserSurveyStates.survey_section_1)
 async def section_1_processing(message: Message, state: FSMContext):
+    if message.from_user.id not in user_db:
+        user_db[message.from_user.id] = deepcopy(db_template)
+        
     user_db[message.from_user.id]['section_1_answers'].append(message.text)
     if user_db[message.from_user.id]['question_index'] < len(SECTION_1_QUESTIONS):
         if "Дата" in SECTION_1_QUESTIONS[user_db[message.from_user.id]['question_index'] - 1]:
@@ -62,11 +68,17 @@ async def section_1_processing(message: Message, state: FSMContext):
 
 @router.callback_query(UserSurveyStates.get_spouse, F.data == 'create')
 async def create_spouse(callback: CallbackQuery):
+    if callback.from_user.id not in user_db:
+        user_db[callback.from_user.id] = deepcopy(db_template)
+        
     await callback.message.answer('ФИО супруга/супруги')
 
 
 @router.callback_query(UserSurveyStates.get_spouse, F.data == 'no_create')
 async def no_create_spouse(callback: CallbackQuery, state: FSMContext):
+    if callback.from_user.id not in user_db:
+        user_db[callback.from_user.id] = deepcopy(db_template)
+        
     user_db[callback.from_user.id]['section_2_answers'].append('Нет')
 
     user_db[callback.from_user.id]['question_index'] += 1
@@ -80,6 +92,9 @@ async def no_create_spouse(callback: CallbackQuery, state: FSMContext):
 
 @router.message(UserSurveyStates.get_spouse)
 async def write_supouse(message: Message, state: FSMContext):
+    if message.from_user.id not in user_db:
+        user_db[message.from_user.id] = deepcopy(db_template)
+        
     user_db[message.from_user.id]['section_2_answers'].append(message.text)
 
     await state.set_state(UserSurveyStates.get_children)
@@ -98,6 +113,9 @@ async def create_children(callback: CallbackQuery):
 
 @router.callback_query(UserSurveyStates.get_children, F.data == 'no_create')
 async def no_create_spouse(callback: CallbackQuery, state: FSMContext):
+    if callback.from_user.id not in user_db:
+        user_db[callback.from_user.id] = deepcopy(db_template)
+        
     user_db[callback.from_user.id]['section_2_answers'].append('Нет')
 
     await callback.message.edit_text(
@@ -109,6 +127,9 @@ async def no_create_spouse(callback: CallbackQuery, state: FSMContext):
 
 @router.message(UserSurveyStates.get_children)
 async def get_children_name(message: Message, state: FSMContext):
+    if message.from_user.id not in user_db:
+        user_db[message.from_user.id] = deepcopy(db_template)
+
     user_db[message.from_user.id]['section_2_answers'].append(message.text)
 
     await message.answer(
@@ -121,6 +142,9 @@ async def get_children_name(message: Message, state: FSMContext):
 
 @router.callback_query(F.data == "show_results")
 async def show_results(callback: CallbackQuery):
+    if callback.message.from_user.id not in user_db:
+        user_db[callback.message.from_user.id] = deepcopy(db_template)
+
     cur_user = user_db[callback.from_user.id]
 
     text = get_answers(cur_user['section_1_answers'], cur_user['section_2_answers'])
@@ -134,6 +158,9 @@ async def show_results(callback: CallbackQuery):
 
 @router.callback_query(F.data == "show_YES" or F.data == "show_NO")
 async def fill_data(callback: CallbackQuery):
+    if message.from_user.id not in user_db:
+        user_db[message.from_user.id] = deepcopy(db_template)
+
     cur_user = user_db[callback.from_user.id]
     section_1 = cur_user["section_1_answers"]
     section_2 = cur_user["section_2_answers"]

@@ -16,7 +16,7 @@ def get_token(email: str, password: str):
     response = requests.post(url, headers=headers, json=data).json()
 
     if "access_token" in response:
-        return response["access_token"]  # Добавить обработку ошибок сервера
+        return response["access_token"]
     else:
         return "error"
 
@@ -120,20 +120,3 @@ def update_page(token: str, slug: str, epitaph: str, biography: list, base_args:
     print(response)
 
     return response.json()
-
-
-if __name__ == "__main__":
-    test_email = "team21@hackathon.ru"
-    test_password = "H5CUHecc"
-    site_token = get_token(test_email, test_password)
-
-    pages = get_pages(site_token)
-
-    cur_page = pages[0]
-    print(cur_page)
-    page_slug = cur_page["slug"]
-    print(page_slug)
-    print()
-
-    # upd = update_page(site_token, page_slug)
-    # print(upd)
