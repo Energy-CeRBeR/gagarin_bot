@@ -134,5 +134,5 @@ async def section_1_processing(message: Message, state: FSMContext):
         await message.answer(text=SECTION_1_QUESTIONS[user_db[message.from_user.id]['question_index']])
         user_db[message.from_user.id]['question_index'] += 1
         if user_db[message.from_user.id]['question_index'] == 14:
-
+            pass
 
