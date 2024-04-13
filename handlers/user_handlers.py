@@ -14,7 +14,7 @@ from keyboards.keyboards import create_pages_keyboard
 
 from memoryCode.queries import get_token, get_pages, update_page
 
-from states.states import UserSurveyStates, AuthState
+from states.states import AuthState
 
 router = Router()
 
@@ -107,3 +107,6 @@ async def select_page_for_fill(message: Message):
         )
     else:
         await message.answer(USER_COMMANDS[message.text]["no_token"])
+
+
+

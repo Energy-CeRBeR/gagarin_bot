@@ -34,7 +34,7 @@ def get_pages(token):
     return response
 
 
-def update_page(token, slug):
+def update_page(token: str, slug: str, base_args: list = [], biography_args: list = []):
     url = f"https://mc.dev.rand.agency/api/page/{slug}"
 
     headers = {
