@@ -3,12 +3,12 @@ from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from messages.messages import BUTTONS_TEXT
 
 
-def create_pages_keyboard(pages: list[dict]):
+def create_pages_keyboard(pages: list[dict], param: str):
     buttons = list()
     for page in pages:
         cur_page = InlineKeyboardButton(
             text=page["name"],
-            callback_data=f"get_page{page['slug']}"
+            callback_data=f"{param}_page{page['slug']}"
         )
         buttons.append([cur_page])
 

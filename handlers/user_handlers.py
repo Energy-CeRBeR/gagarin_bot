@@ -46,19 +46,24 @@ async def get_profile_info(message: Message):
         pages = get_pages(cur_user["token"])
         await message.answer(
             text=USER_COMMANDS[message.text]["with_token"],
-            reply_markup=create_pages_keyboard(pages)
+            reply_markup=create_pages_keyboard(pages, "show")
         )
     else:
-        await message.answer(USER_COMMANDS["no_token"])
+        await message.answer(USER_COMMANDS[message.text]["no_token"])
+
+
+@router.callback_query(F.data == "back")
+async def back_button_clicked(callback: CallbackQuery):
+    await callback.message.delete()
 
 
 # Начало регистрации
 @router.message(Command(commands="auth"))
 async def start_auth(message: Message, state: FSMContext):
-    if not user_db[message.from_user.id]["token"]:
-        await message.answer(USER_COMMANDS["auth"]["already_auth"])
+    if user_db[message.from_user.id]["token"]:
+        await message.answer(USER_COMMANDS[message.text]["already_auth"])
     else:
-        await message.answer(USER_COMMANDS["auth"]["get_email"])
+        await message.answer(USER_COMMANDS[message.text]["get_email"])
         await state.set_state(AuthState.get_email)
 
 
@@ -77,31 +82,45 @@ async def continue_auth(message: Message, state: FSMContext):
 # Завершение регистрации
 @router.message(AuthState.get_password)
 async def continue_auth(message: Message, state: FSMContext):
-    cur_user = user_db[message.from_user.id]
     user_password = message.text
-    user_email = cur_user["email"]
+    user_email = user_db[message.from_user.id]["email"]
     token = get_token(user_email, user_password)
     if token == "error":
         await message.answer(USER_COMMANDS["/auth"]["invalid_data"])
     else:
+        user_db[message.from_user.id]["token"] = token
         await message.answer(USER_COMMANDS["/auth"]["success_auth"])
-        await state.clear()
+
+    await state.clear()
+
+
+# Подготовка к заполнению страницы
+@router.message(Command(commands="fill_page"))
+async def select_page_for_fill(message: Message):
+    cur_user = user_db[message.from_user.id]
+    if cur_user["token"]:
+        pages = get_pages(cur_user["token"])
+        await message.answer(
+            text=USER_COMMANDS[message.text]["with_token"],
+            reply_markup=create_pages_keyboard(pages, "fill")
+        )
+    else:
+        await message.answer(USER_COMMANDS[message.text]["no_token"])
 
 
 # Обработка нажатия кнопки для отмены операции
-@router.callback_query(F.data == "back")
-async def back_button_clicked(callback: CallbackQuery):
-    await callback.message.delete()
 
 
 # Начало опроса
-@router.message(StateFilter(None))
-async def start_survey(message: Message, state: FSMContext):
-    await message.answer(text=USER_MESSAGES['start_survey_section_1'])
+@router.callback_query(F.data[:9] == "fill_page")
+async def start_survey(callback: CallbackQuery, state: FSMContext):
+    user_db[callback.from_user.id]["cur_page_slug"] = int(callback.data[9:])
+
+    await callback.message.answer(text=USER_MESSAGES['start_survey_section_1'])
 
     # Задаётся вопрос с нужным индексом
-    await message.answer(text=SECTION_1_QUESTIONS[user_db[message.from_user.id]['question_index']])
-    user_db[message.from_user.id]['question_index'] += 1
+    await callback.message.answer(text=SECTION_1_QUESTIONS[user_db[callback.from_user.id]['question_index']])
+    user_db[callback.from_user.id]['question_index'] += 1
 
     await state.set_state(UserSurveyStates.survey_section_1)
 
@@ -110,6 +129,10 @@ async def start_survey(message: Message, state: FSMContext):
 @router.message(UserSurveyStates.survey_section_1)
 async def section_1_processing(message: Message, state: FSMContext):
     user_db[message.from_user.id]['section_1_answers'].append(message.text)
+    print(user_db[message.from_user.id])
     if user_db[message.from_user.id]['question_index'] < len(SECTION_1_QUESTIONS):
         await message.answer(text=SECTION_1_QUESTIONS[user_db[message.from_user.id]['question_index']])
         user_db[message.from_user.id]['question_index'] += 1
+        if user_db[message.from_user.id]['question_index'] == 14:
+
+
