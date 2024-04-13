@@ -45,4 +45,3 @@ USER_COMMANDS: dict = {
 BUTTONS_TEXT: dict = {
     "back_button": "Вернуться назад"
 }
-
