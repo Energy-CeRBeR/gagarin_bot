@@ -29,8 +29,38 @@ def connect_to_pages(token):
         "Authorization": f"Bearer {token}"
     }
 
-    response = requests.get(url, headers=headers)
-    print(response.url)
+    response = requests.get(url, headers=headers).json()
+
+    return response
+
+
+def update_page(token, slug):
+    url = f"https://mc.dev.rand.agency/api/page/{slug}"
+
+    headers = {
+        "Accept": "application/json",
+        "Content-Type": "application/json;charset=UTF-8",
+        "Authorization": f"Bearer {token}"
+    }
+
+    data = {
+        "name": "ТЕСТ ХАК",
+        "start": {
+            "day": "02",
+            "month": "01",
+            "year": 1700
+        },
+        "end": {
+            "day": "03",
+            "month": "01",
+            "year": 2024,
+        },
+        "epitaph": "КРАТКАЯ ЭПИТАФИЯ",
+        "author_epitaph": "АВТоР з", "page_type_id": "1"
+    }
+
+    response = requests.put(url, headers=headers, json=data)
+    print(response)
 
     return response.json()
 
@@ -39,10 +69,14 @@ if __name__ == "__main__":
     test_email = "team21@hackathon.ru"
     test_password = "H5CUHecc"
     site_token = get_token(test_email, test_password)
-    print(site_token)
-
-    page_name = "Команда Хакатон 21/2",
 
     pages = connect_to_pages(site_token)
-    for page in pages:
-        print(page["name"])
+
+    cur_page = pages[0]
+    print(cur_page)
+    page_slug = cur_page["slug"]
+    print(page_slug)
+    print()
+
+    upd = update_page(site_token, page_slug)
+    print(upd)
