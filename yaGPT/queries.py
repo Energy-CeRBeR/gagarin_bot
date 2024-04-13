@@ -3,7 +3,7 @@ import json
 
 
 def get_epitaph(info: list):
-    fio, bir, det, born_place, death_place, childs, wife, education, job, medals = info
+    fio, bir, det, born_place, death_place, wife, childs, education, job, medals = info
     prompt = {
         "modelUri": "gpt://b1g5og37bgh1ghh2s2qc/yandexgpt",
         "completionOptions": {
@@ -45,7 +45,7 @@ def get_epitaph(info: list):
 
 
 def get_biography(info):
-    fio, bir, det, born_place, death_place, childs, wife, education, job, medals = info
+    fio, bir, det, born_place, death_place, wife, childs, education, job, medals = info
     prompt = {
         "modelUri": "gpt://b1g5og37bgh1ghh2s2qc/yandexgpt",
         "completionOptions": {

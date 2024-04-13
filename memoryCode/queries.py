@@ -34,7 +34,7 @@ def get_pages(token):
     return response
 
 
-def update_page(token: str, slug: str, epitaph: str, biography: str, base_args: list, family_args: list):
+def update_page(token: str, slug: str, epitaph: str, biography: list, base_args: list, family_args: list):
     url = f"https://mc.dev.rand.agency/api/page/{slug}"
 
     headers = {
@@ -60,23 +60,23 @@ def update_page(token: str, slug: str, epitaph: str, biography: str, base_args: 
         "page_type_id": "1",
         "biographies": [
             {
-                "title": base_args[9],
-                "description": biography + "1",
+                "title": biography[0],
+                "description": biography[1],
                 "order": 1
 
             },
             {
-                "title": base_args[10],
-                "description": biography + "2",
+                "title": biography[2],
+                "description": biography[3],
                 "order": 2
             },
             {
-                "title": base_args[11],
-                "description": biography + "3",
+                "title": biography[4],
+                "description": biography[5],
                 "order": 3
             },
             {
-                "description": "ТЕКСТ ЗАКЛЮЧЕНИЯ",
+                "description": biography[7],
                 "order": 4,
             }
         ],

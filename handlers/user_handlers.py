@@ -2,11 +2,11 @@ from copy import deepcopy
 from validate_email import validate_email
 
 from aiogram import Router, F
-from aiogram.filters import CommandStart, Command, CommandObject, StateFilter
+from aiogram.filters import CommandStart, Command
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
 
-from messages.user_messages import USER_MESSAGES, USER_COMMANDS
+from messages.user_messages import USER_COMMANDS
 
 from database.database import user_db, db_template
 
@@ -19,10 +19,13 @@ from states.states import AuthState
 router = Router()
 
 
-# Обработка команды /start
 @router.message(CommandStart())
 async def start_bot(message: Message):
-    # Проверка, привязал ли пользователь тг к сайту
+    if message.from_user.id in user_db:
+        token = user_db[message.from_user.id]["token"]
+        user_db[message.from_user.id] = deepcopy(db_template)
+        user_db[message.from_user.id]["token"] = token
+
     if message.from_user.id not in user_db:
         user_db[message.from_user.id] = deepcopy(db_template)
         await message.answer(text=USER_COMMANDS[message.text]["no_base"])
@@ -33,6 +36,11 @@ async def start_bot(message: Message):
 # Главное меню
 @router.message(Command(commands="menu"))
 async def to_main_menu(message: Message):
+    if message.from_user.id in user_db:
+        token = user_db[message.from_user.id]["token"]
+        user_db[message.from_user.id] = deepcopy(db_template)
+        user_db[message.from_user.id]["token"] = token
+
     await message.answer(text=USER_COMMANDS[message.text])
 
 
@@ -61,11 +69,22 @@ async def back_button_clicked(callback: CallbackQuery):
 # Начало регистрации
 @router.message(Command(commands="auth"))
 async def start_auth(message: Message, state: FSMContext):
+    if message.from_user.id in user_db:
+        token = user_db[message.from_user.id]["token"]
+        user_db[message.from_user.id] = deepcopy(db_template)
+        user_db[message.from_user.id]["token"] = token
+
     if user_db[message.from_user.id]["token"]:
         await message.answer(USER_COMMANDS[message.text]["already_auth"])
     else:
         await message.answer(USER_COMMANDS[message.text]["get_email"])
         await state.set_state(AuthState.get_email)
+
+
+@router.message(Command(commands="exit"))
+async def exit_from_profile(message: Message):
+    user_db[message.from_user.id] = deepcopy(db_template)
+    await message.answer("Вы вышли из профиля!")
 
 
 # Валидация введённой почты, продолжение регистрации
@@ -98,6 +117,11 @@ async def continue_auth(message: Message, state: FSMContext):
 # Подготовка к заполнению страницы
 @router.message(Command(commands="fill_page"))
 async def select_page_for_fill(message: Message):
+    if message.from_user.id in user_db:
+        token = user_db[message.from_user.id]["token"]
+        user_db[message.from_user.id] = deepcopy(db_template)
+        user_db[message.from_user.id]["token"] = token
+
     cur_user = user_db[message.from_user.id]
     if cur_user["token"]:
         pages = get_pages(cur_user["token"])
@@ -107,6 +131,3 @@ async def select_page_for_fill(message: Message):
         )
     else:
         await message.answer(USER_COMMANDS[message.text]["no_token"])
-
-
-

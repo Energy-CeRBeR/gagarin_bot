@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 from aiogram import Router, F
 
 from aiogram.fsm.context import FSMContext
@@ -13,7 +15,7 @@ from memoryCode.queries import update_page
 
 from services.services import check_date, get_answers
 
-from database.database import user_db
+from database.database import user_db, db_template
 
 from states.states import UserSurveyStates
 
@@ -37,13 +39,13 @@ async def start_survey(callback: CallbackQuery, state: FSMContext):
 @router.message(UserSurveyStates.survey_section_1)
 async def section_1_processing(message: Message, state: FSMContext):
     user_db[message.from_user.id]['section_1_answers'].append(message.text)
-
     if user_db[message.from_user.id]['question_index'] < len(SECTION_1_QUESTIONS):
         if "Дата" in SECTION_1_QUESTIONS[user_db[message.from_user.id]['question_index'] - 1]:
             if check_date(message.text):
                 await message.answer(text=SECTION_1_QUESTIONS[user_db[message.from_user.id]['question_index']])
                 user_db[message.from_user.id]['question_index'] += 1
             else:
+                user_db[message.from_user.id]['section_1_answers'].pop(-1)
                 await message.answer(INCORRECT_DATE)
         else:
             await message.answer(text=SECTION_1_QUESTIONS[user_db[message.from_user.id]['question_index']])
@@ -138,7 +140,7 @@ async def fill_data(callback: CallbackQuery):
     AI_biography = "Не сгенерировано"
     AI_epitaph = "Не сгенерировано"
 
-    if callback.data == "NO":
+    if callback.data == "show_NO":
         await callback.message.delete()
         await callback.message.answer("Всё готово к отправке на сайт!")
     else:
@@ -163,8 +165,17 @@ async def fill_data(callback: CallbackQuery):
                 f"Биография:\n"
                 f"{AI_biography}")
 
+        if AI_biography != "Не сгенерировано":
+            AI_biography = AI_biography.split('\n\n')
+        else:
+            AI_biography = [AI_biography for _ in range(8)]
+
         await callback.message.answer(text)
 
     await callback.message.answer("Данные отправляются на сайт. Пожалуйста, подождите!")
     update_page(cur_user["token"], cur_user["cur_page_slug"], AI_epitaph, AI_biography, section_1, section_2)
     await callback.message.answer("Данные успешно загружены!")
+
+    token = user_db[callback.from_user.id]["token"]
+    user_db[callback.from_user.id] = deepcopy(db_template)
+    user_db[callback.from_user.id]["token"] = token
