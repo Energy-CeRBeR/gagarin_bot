@@ -4,6 +4,7 @@ db_template = {
     "email": "",
     "question_index": 0,
     "section_1_answers": [],
+    "section_2_answers": [],
     "cur_page_slug": 0
 }
 

@@ -11,7 +11,8 @@ class UserSurveyStates(StatesGroup):
     survey_section_1 = State()
 
     # Вопросы с выбором варианта
-    survey_section_2 = State()
+    get_spouse = State()
+    get_childrens = State()
 
 
 class GlobalStates(StatesGroup):

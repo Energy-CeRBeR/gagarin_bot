@@ -20,3 +20,11 @@ def create_pages_keyboard(pages: list[dict], param: str):
 
     keyboard = InlineKeyboardMarkup(inline_keyboard=buttons)
     return keyboard
+
+
+survey_keyboard = InlineKeyboardMarkup(inline_keyboard=
+    [
+        [InlineKeyboardButton(text='Есть', callback_data='create')], 
+        [InlineKeyboardButton(text='Нет', callback_data='no_create')]
+    ]
+)
