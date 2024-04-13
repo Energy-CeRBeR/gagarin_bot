@@ -22,17 +22,16 @@ from states.states import UserSurveyStates
 router = Router()
 
 
-# Начало опроса
 @router.callback_query(F.data[:9] == "fill_page")
 async def start_survey(callback: CallbackQuery, state: FSMContext):
     if callback.from_user.id not in user_db:
         user_db[callback.from_user.id] = deepcopy(db_template)
-        
+        return
+
     user_db[callback.from_user.id]["cur_page_slug"] = int(callback.data[9:])
 
     await callback.message.answer(text=USER_MESSAGES['start_survey_section_1'])
 
-    # Задаётся вопрос с нужным индексом
     await callback.message.answer(text=SECTION_1_QUESTIONS[user_db[callback.from_user.id]['question_index']])
     user_db[callback.from_user.id]['question_index'] += 1
 
@@ -43,7 +42,8 @@ async def start_survey(callback: CallbackQuery, state: FSMContext):
 async def section_1_processing(message: Message, state: FSMContext):
     if message.from_user.id not in user_db:
         user_db[message.from_user.id] = deepcopy(db_template)
-        
+        return
+
     user_db[message.from_user.id]['section_1_answers'].append(message.text)
     if user_db[message.from_user.id]['question_index'] < len(SECTION_1_QUESTIONS):
         if "Дата" in SECTION_1_QUESTIONS[user_db[message.from_user.id]['question_index'] - 1]:
@@ -70,7 +70,8 @@ async def section_1_processing(message: Message, state: FSMContext):
 async def create_spouse(callback: CallbackQuery):
     if callback.from_user.id not in user_db:
         user_db[callback.from_user.id] = deepcopy(db_template)
-        
+        return
+
     await callback.message.answer('ФИО супруга/супруги')
 
 
@@ -78,7 +79,8 @@ async def create_spouse(callback: CallbackQuery):
 async def no_create_spouse(callback: CallbackQuery, state: FSMContext):
     if callback.from_user.id not in user_db:
         user_db[callback.from_user.id] = deepcopy(db_template)
-        
+        return
+
     user_db[callback.from_user.id]['section_2_answers'].append('Нет')
 
     user_db[callback.from_user.id]['question_index'] += 1
@@ -94,7 +96,8 @@ async def no_create_spouse(callback: CallbackQuery, state: FSMContext):
 async def write_supouse(message: Message, state: FSMContext):
     if message.from_user.id not in user_db:
         user_db[message.from_user.id] = deepcopy(db_template)
-        
+        return
+
     user_db[message.from_user.id]['section_2_answers'].append(message.text)
 
     await state.set_state(UserSurveyStates.get_children)
@@ -115,7 +118,8 @@ async def create_children(callback: CallbackQuery):
 async def no_create_spouse(callback: CallbackQuery, state: FSMContext):
     if callback.from_user.id not in user_db:
         user_db[callback.from_user.id] = deepcopy(db_template)
-        
+        return
+
     user_db[callback.from_user.id]['section_2_answers'].append('Нет')
 
     await callback.message.edit_text(
@@ -129,6 +133,7 @@ async def no_create_spouse(callback: CallbackQuery, state: FSMContext):
 async def get_children_name(message: Message, state: FSMContext):
     if message.from_user.id not in user_db:
         user_db[message.from_user.id] = deepcopy(db_template)
+        return
 
     user_db[message.from_user.id]['section_2_answers'].append(message.text)
 
@@ -142,8 +147,9 @@ async def get_children_name(message: Message, state: FSMContext):
 
 @router.callback_query(F.data == "show_results")
 async def show_results(callback: CallbackQuery):
-    if callback.message.from_user.id not in user_db:
-        user_db[callback.message.from_user.id] = deepcopy(db_template)
+    if callback.from_user.id not in user_db:
+        user_db[callback.from_user.id] = deepcopy(db_template)
+        return
 
     cur_user = user_db[callback.from_user.id]
 
@@ -152,23 +158,24 @@ async def show_results(callback: CallbackQuery):
     await callback.message.answer(text)
     await callback.message.answer(
         text="Заполнить поля с биографией и эпитафией?",
-        reply_markup=create_yes_no_keyboard("show")
+        reply_markup=create_yes_no_keyboard("show_")
     )
 
 
-@router.callback_query(F.data == "show_YES" or F.data == "show_NO")
+@router.callback_query(F.data[:5] == "show_")
 async def fill_data(callback: CallbackQuery):
-    if callback.message.from_user.id not in user_db:
-        user_db[callback.message.from_user.id] = deepcopy(db_template)
+    if callback.from_user.id not in user_db:
+        user_db[callback.from_user.id] = deepcopy(db_template)
+        return
 
     cur_user = user_db[callback.from_user.id]
     section_1 = cur_user["section_1_answers"]
     section_2 = cur_user["section_2_answers"]
     AI_biography = "Не сгенерировано"
     AI_epitaph = "Не сгенерировано"
-
-    if callback.data == "show_NO":
+    if callback.data == "show__NO":
         await callback.message.delete()
+        AI_biography = [AI_biography for _ in range(8)]
         await callback.message.answer("Всё готово к отправке на сайт!")
     else:
         await callback.message.delete()

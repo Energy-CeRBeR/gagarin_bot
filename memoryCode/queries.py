@@ -56,7 +56,7 @@ def update_page(token: str, slug: str, epitaph: str, biography: list, base_args:
             "year": base_args[2].split(".")[2]
         },
         "epitaph": epitaph,
-        "author_epitaph": "АВТоР з",
+        "author_epitaph": base_args[9],
         "page_type_id": "1",
         "biographies": [
             {
@@ -117,6 +117,5 @@ def update_page(token: str, slug: str, epitaph: str, biography: list, base_args:
     }
 
     response = requests.put(url, headers=headers, json=data)
-    print(response)
 
     return response.json()

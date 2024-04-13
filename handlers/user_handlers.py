@@ -38,6 +38,7 @@ async def start_bot(message: Message):
 async def to_main_menu(message: Message):
     if message.from_user.id not in user_db:
         user_db[message.from_user.id] = deepcopy(db_template)
+        return
 
     if message.from_user.id in user_db:
         token = user_db[message.from_user.id]["token"]
@@ -57,6 +58,7 @@ async def back_button_clicked(callback: CallbackQuery):
 async def start_auth(message: Message, state: FSMContext):
     if message.from_user.id not in user_db:
         user_db[message.from_user.id] = deepcopy(db_template)
+        return
 
     if message.from_user.id in user_db:
         token = user_db[message.from_user.id]["token"]
@@ -80,6 +82,7 @@ async def exit_from_profile(message: Message):
 async def continue_auth(message: Message, state: FSMContext):
     if message.from_user.id not in user_db:
         user_db[message.from_user.id] = deepcopy(db_template)
+        return
 
     user_email = message.text
     if validate_email(user_email):
@@ -95,6 +98,7 @@ async def continue_auth(message: Message, state: FSMContext):
 async def continue_auth(message: Message, state: FSMContext):
     if message.from_user.id not in user_db:
         user_db[message.from_user.id] = deepcopy(db_template)
+        return
 
     user_password = message.text
     user_email = user_db[message.from_user.id]["email"]
@@ -112,6 +116,7 @@ async def continue_auth(message: Message, state: FSMContext):
 async def select_page_for_fill(message: Message):
     if message.from_user.id not in user_db:
         user_db[message.from_user.id] = deepcopy(db_template)
+        return
 
     if message.from_user.id in user_db:
         token = user_db[message.from_user.id]["token"]
