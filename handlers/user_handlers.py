@@ -47,26 +47,6 @@ async def to_main_menu(message: Message):
     await message.answer(text=USER_COMMANDS[message.text])
 
 
-# Хэндлер для просмотра профиля. Если пользователь авторизовался через сайт
-# (с помощью почты и пароля от соответствующего сайта), то вывод информации о профиле.
-# В противном случае предложить авторизоваться
-@router.message(Command(commands="profile"))
-async def get_profile_info(message: Message):
-    if message.from_user.id not in user_db:
-        user_db[message.from_user.id] = deepcopy(db_template)
-
-    cur_user = user_db[message.from_user.id]
-    if cur_user["token"]:
-        pages = get_pages(cur_user["token"])
-        await message.answer(
-            text=USER_COMMANDS[message.text]["with_token"],
-            reply_markup=create_pages_keyboard(pages, "show")
-        )
-    else:
-        await message.answer(USER_COMMANDS[message.text]["no_token"])
-
-
-# Обработка нажатия кнопки для отмены операции
 @router.callback_query(F.data == "back")
 async def back_button_clicked(callback: CallbackQuery):
     await callback.message.delete()
@@ -96,7 +76,6 @@ async def exit_from_profile(message: Message):
     await message.answer("Вы вышли из профиля!")
 
 
-# Валидация введённой почты, продолжение регистрации
 @router.message(AuthState.get_email)
 async def continue_auth(message: Message, state: FSMContext):
     if message.from_user.id not in user_db:
@@ -129,7 +108,6 @@ async def continue_auth(message: Message, state: FSMContext):
     await state.clear()
 
 
-# Подготовка к заполнению страницы
 @router.message(Command(commands="fill_page"))
 async def select_page_for_fill(message: Message):
     if message.from_user.id not in user_db:

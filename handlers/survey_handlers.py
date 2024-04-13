@@ -158,8 +158,8 @@ async def show_results(callback: CallbackQuery):
 
 @router.callback_query(F.data == "show_YES" or F.data == "show_NO")
 async def fill_data(callback: CallbackQuery):
-    if message.from_user.id not in user_db:
-        user_db[message.from_user.id] = deepcopy(db_template)
+    if callback.message.from_user.id not in user_db:
+        user_db[callback.message.from_user.id] = deepcopy(db_template)
 
     cur_user = user_db[callback.from_user.id]
     section_1 = cur_user["section_1_answers"]
