@@ -2,3 +2,4 @@ aiogram
 python-dotenv
 environs
 requests
+validate_email

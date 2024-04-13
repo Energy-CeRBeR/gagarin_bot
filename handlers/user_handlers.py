@@ -13,7 +13,7 @@ from keyboards.keyboards import create_pages_keyboard
 
 from memoryCode.queries import get_token, get_pages, update_page
 
-from states.states import UserSurveyStates
+from states.states import UserSurveyStates, AuthState
 
 router = Router()
 
@@ -30,8 +30,8 @@ async def start_bot(message: Message):
 
 
 # Главное меню
-@router.message(Command(commands="help"))
-async def help_info(message: Message):
+@router.message(Command(commands="menu"))
+async def to_main_menu(message: Message):
     await message.answer(text=USER_COMMANDS[message.text])
 
 
@@ -51,7 +51,20 @@ async def get_profile_info(message: Message):
         await message.answer(USER_COMMANDS["no_token"])
 
 
+# Начало регистрации
 @router.message(Command(commands="auth"))
+async def start_auth(message: Message, state: FSMContext):
+    if not user_db["token"]:
+        await message.answer(USER_COMMANDS["auth"]["already_auth"])
+    else:
+        await message.answer(USER_COMMANDS["auth"]["get_email"])
+
+    await state.set_state(AuthState.get_email)
+
+
+@router.message(AuthState.get_email)
+async def continue_auth(message: Message, state: FSMContext):
+    email = message.text
 
 
 
