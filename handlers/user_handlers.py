@@ -6,7 +6,7 @@ from aiogram.filters import CommandStart, Command, CommandObject, StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
 
-from messages.messages import USER_MESSAGES, USER_COMMANDS, SECTION_1_QUESTIONS
+from messages.messages import USER_MESSAGES, USER_COMMANDS
 
 from database.database import user_db, db_template
 
