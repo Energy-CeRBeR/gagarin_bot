@@ -27,14 +27,14 @@ async def start_bot(message: Message):
     else:
         await message.answer(text=USER_COMMANDS[message.text]["in_base"])
 
-    
+
 # Хэндлер для просмотра профиля. Если пользователь авторизовался через сайт
 # (с помощью почты и пароля от соответствующего сайта), то вывод информации о профиле.
 # В противном случае предложить авторизоваться
 @router.message(Command(commands="profile"))
 async def get_profile_info(message: Message):
     pass
- 
+
 
 # Начало опроса
 @router.message(StateFilter(None))
@@ -52,7 +52,6 @@ async def start_survey(message: Message, state: FSMContext):
 @router.message(UserSurveyStates.survey_section_1)
 async def section_1_processing(message: Message, state: FSMContext):
     user_db[message.from_user.id]['section_1_answers'].append(message.text)
-    
     if user_db[message.from_user.id]['question_index'] < len(SECTION_1_QUESTIONS):
         await message.answer(text=SECTION_1_QUESTIONS[user_db[message.from_user.id]['question_index']])
         user_db[message.from_user.id]['question_index'] += 1
