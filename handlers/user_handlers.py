@@ -5,7 +5,7 @@ from aiogram.filters import CommandStart, Command, CommandObject, StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
 
-from messages.messages import USER_MESSAGES, USER_COMMANDS, SURVEY_QUESTIONS
+from messages.messages import USER_MESSAGES, USER_COMMANDS, SECTION_1_QUESTIONS
 
 from database.database import user_db, db_template
 
@@ -39,10 +39,10 @@ async def get_profile_info(message: Message):
 # Начало опроса
 @router.message(StateFilter(None))
 async def start_survey(message: Message, state: FSMContext):
-    await message.answer(text=USER_MESSAGES['start_survey'])
+    await message.answer(text=USER_MESSAGES['start_survey_section_1'])
 
     # Задаётся вопрос с нужным индексом
-    await message.answer(text=SURVEY_QUESTIONS[user_db[message.from_user.id]['question_index']])
+    await message.answer(text=SECTION_1_QUESTIONS[user_db[message.from_user.id]['question_index']])
     user_db[message.from_user.id]['question_index'] += 1
 
     await state.set_state(UserSurveyStates.survey_section_1)
@@ -51,17 +51,8 @@ async def start_survey(message: Message, state: FSMContext):
 # Обработа вопросов секции 1
 @router.message(UserSurveyStates.survey_section_1)
 async def section_1_processing(message: Message, state: FSMContext):
-    user_db[message.from_user.id]['answers'].append(message.text)
+    user_db[message.from_user.id]['section_1_answers'].append(message.text)
     
-    if user_db[message.from_user.id]['question_index'] < len(SURVEY_QUESTIONS):
-        await message.answer(text=SURVEY_QUESTIONS[user_db[message.from_user.id]['question_index']])
+    if user_db[message.from_user.id]['question_index'] < len(SECTION_1_QUESTIONS):
+        await message.answer(text=SECTION_1_QUESTIONS[user_db[message.from_user.id]['question_index']])
         user_db[message.from_user.id]['question_index'] += 1
-    
-    else:
-        await state.set_state(UserSurveyStates.survey_section_2)
-
-
-# Обработка вопросов секции 2
-@router.message(UserSurveyStates.survey_section_2)
-async def section_2_processing(message: Message, state: FSMContext):
-    pass
