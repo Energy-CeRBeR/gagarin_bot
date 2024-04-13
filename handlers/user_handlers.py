@@ -1,4 +1,5 @@
 from copy import deepcopy
+from validate_email import validate_email
 
 from aiogram import Router, F
 from aiogram.filters import CommandStart, Command, CommandObject, StateFilter
@@ -54,18 +55,33 @@ async def get_profile_info(message: Message):
 # Начало регистрации
 @router.message(Command(commands="auth"))
 async def start_auth(message: Message, state: FSMContext):
-    if not user_db["token"]:
+    if not user_db[message.from_user.id]["token"]:
         await message.answer(USER_COMMANDS["auth"]["already_auth"])
     else:
         await message.answer(USER_COMMANDS["auth"]["get_email"])
+        await state.set_state(AuthState.get_email)
 
-    await state.set_state(AuthState.get_email)
 
-
+# Валидация введённой почты, продолжение регистрации
 @router.message(AuthState.get_email)
 async def continue_auth(message: Message, state: FSMContext):
-    email = message.text
+    user_email = message.text
+    if validate_email(user_email):
+        user_db[message.from_user.id]["email"] = user_email
+        await message.answer(USER_COMMANDS["/auth"]["get_password"])
+        await state.set_state(AuthState.get_password)
+    else:
+        await message.answer(USER_COMMANDS["/auth"]["bad_email"])
 
+
+@router.message(AuthState.get_password)
+async def continue_auth(message: Message, state: FSMContext):
+    cur_user = user_db[message.from_user.id]
+    user_password = message.text
+    user_email = cur_user["email"]
+    token = get_token(user_email, user_password)
+    if token == "error":
+        await message.answer(USER_COMMANDS["/auth"]["invalid_data"])
 
 
 # Обработка нажатия кнопки для отмены операции

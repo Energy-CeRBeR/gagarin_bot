@@ -2,7 +2,6 @@
 db_template = {
     "token": "",
     "email": "",
-    "password": "",
     "question_index" : 0,
     "section_1_answers": [],
 }

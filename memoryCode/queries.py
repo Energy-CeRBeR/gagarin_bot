@@ -16,7 +16,7 @@ def get_token(email: str, password: str):
     response = requests.post(url, headers=headers, json=data).json()
 
     if "access_token" in response:
-        return response["access_token"]
+        return response["access_token"]  # Добавить обработку ошибок сервера
     else:
         return "error"
 
