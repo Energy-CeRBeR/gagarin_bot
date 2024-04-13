@@ -10,7 +10,7 @@ def get_token(email: str, password: str):
     data = {
         "email": email,
         "password": password,
-        "device": "bot-v0.0.1"
+        "device": "bot-v0.0.1",
     }
 
     response = requests.post(url, headers=headers, json=data).json()
@@ -48,7 +48,7 @@ def update_page(token, slug):
         "start": {
             "day": "02",
             "month": "01",
-            "year": 1700
+            "year": 1728
         },
         "end": {
             "day": "03",
@@ -56,7 +56,65 @@ def update_page(token, slug):
             "year": 2024,
         },
         "epitaph": "КРАТКАЯ ЭПИТАФИЯ",
-        "author_epitaph": "АВТоР з", "page_type_id": "1"
+        "author_epitaph": "АВТоР з",
+        "page_type_id": "1",
+        "burial_place": "Москва",
+        "biographies": [
+            {
+                "title": "1 часть ЗАГОЛОВОК ВСТУПЛЕНИЯ",
+                "description": "ТЕКСТ ВСТУПЛЕНИЯ1",
+                "order": 1
+
+            },
+            {
+                "title": "2 часть ЗАГОЛОВОК ВСТУПЛЕНИЯ",
+                "description": "ТЕКСТ ВСТУПЛЕНИЯ2",
+                "order": 2
+            },
+            {
+                "title": "3 часть ЗАГОЛОВОК ВСТУПЛЕНИЯ",
+                "description": "ТЕКСТ ВСТУПЛЕНИЯ3",
+                "order": 3
+            },
+            {
+                "description": "ТЕКСТ ЗАКЛЮЧЕНИЯ",
+                "order": 4,
+            }
+        ],
+        "page_information": [
+            {
+                "title": "pageInformation.placeOfBirth",
+                "description": "МЕСТО РОЖДЕНИЯ",
+            },
+            {
+                "title": "pageInformation.placeOfDeath",
+                "description": "МЕСТО СМЕРТИ",
+            },
+            {
+                "title": "pageInformation.children",
+                "description": "ДЕТИ",
+            },
+            {
+                "title": "^pageInformation.wife||pageInformation.husband",
+                "description": "СУПРУГА\n",
+            },
+            {
+                "title": "pageInformation.citizenship",
+                "description": "ГРАЖДАНСТВО",
+            },
+            {
+                "title": "pageInformation.education",
+                "description": "ОБРАЗОВАНИЕ",
+            },
+            {
+                "title": "pageInformation.occupation",
+                "description": "РОД ДЕЯТЕЛЬНОСТИ",
+            },
+            {
+                "title": "pageInformation.awards",
+                "description": "НАГРАДЫ, ПРЕМИИ И ДОСТИЖЕНИЯ",
+            }
+        ],
     }
 
     response = requests.put(url, headers=headers, json=data)
