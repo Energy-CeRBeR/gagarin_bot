@@ -74,6 +74,7 @@ async def continue_auth(message: Message, state: FSMContext):
         await message.answer(USER_COMMANDS["/auth"]["bad_email"])
 
 
+# Завершение регистрации
 @router.message(AuthState.get_password)
 async def continue_auth(message: Message, state: FSMContext):
     cur_user = user_db[message.from_user.id]
@@ -82,6 +83,9 @@ async def continue_auth(message: Message, state: FSMContext):
     token = get_token(user_email, user_password)
     if token == "error":
         await message.answer(USER_COMMANDS["/auth"]["invalid_data"])
+    else:
+        await message.answer(USER_COMMANDS["/auth"]["success_auth"])
+        await state.clear()
 
 
 # Обработка нажатия кнопки для отмены операции
