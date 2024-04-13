@@ -21,7 +21,7 @@ def get_token(email: str, password: str):
         return "error"
 
 
-def connect_to_pages(token):
+def get_pages(token):
     url = "https://mc.dev.rand.agency/api/cabinet/individual-pages"
     headers = {
         "Accept": "application/json",
@@ -70,7 +70,7 @@ if __name__ == "__main__":
     test_password = "H5CUHecc"
     site_token = get_token(test_email, test_password)
 
-    pages = connect_to_pages(site_token)
+    pages = get_pages(site_token)
 
     cur_page = pages[0]
     print(cur_page)

@@ -9,10 +9,11 @@ from messages.messages import USER_MESSAGES, USER_COMMANDS, SECTION_1_QUESTIONS
 
 from database.database import user_db, db_template
 
-from memoryCode import queries
+from keyboards.keyboards import create_pages_keyboard
 
-from states.user_survey_states import UserSurveyStates
-from states.global_states import GlobalStates
+from memoryCode.queries import get_token, get_pages, update_page
+
+from states.states import UserSurveyStates
 
 router = Router()
 
@@ -28,12 +29,36 @@ async def start_bot(message: Message):
         await message.answer(text=USER_COMMANDS[message.text]["in_base"])
 
 
+# Главное меню
+@router.message(Command(commands="help"))
+async def help_info(message: Message):
+    await message.answer(text=USER_COMMANDS[message.text])
+
+
 # Хэндлер для просмотра профиля. Если пользователь авторизовался через сайт
 # (с помощью почты и пароля от соответствующего сайта), то вывод информации о профиле.
 # В противном случае предложить авторизоваться
 @router.message(Command(commands="profile"))
 async def get_profile_info(message: Message):
-    pass
+    cur_user = user_db[message.from_user.id]
+    if cur_user["token"]:
+        pages = get_pages(cur_user["token"])
+        await message.answer(
+            text=USER_COMMANDS[message.text]["with_token"],
+            reply_markup=create_pages_keyboard(pages)
+        )
+    else:
+        await message.answer(USER_COMMANDS["no_token"])
+
+
+@router.message(Command(commands="auth"))
+
+
+
+# Обработка нажатия кнопки для отмены операции
+@router.callback_query(F.data == "back")
+async def back_button_clicked(callback: CallbackQuery):
+    await callback.message.delete()
 
 
 # Начало опроса
@@ -48,7 +73,7 @@ async def start_survey(message: Message, state: FSMContext):
     await state.set_state(UserSurveyStates.survey_section_1)
 
 
-# Обработа вопросов секции 1
+# Обработка вопросов секции 1
 @router.message(UserSurveyStates.survey_section_1)
 async def section_1_processing(message: Message, state: FSMContext):
     user_db[message.from_user.id]['section_1_answers'].append(message.text)

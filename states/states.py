@@ -7,3 +7,7 @@ class UserSurveyStates(StatesGroup):
 
     # Вопросы с выбором варианта
     survey_section_2 = State()
+
+
+class GlobalStates(StatesGroup):
+    new_page = State()
