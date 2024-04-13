@@ -4,7 +4,7 @@ db_template = {
     "email": "",
     "password": "",
     "question_index" : 0,
-    "answers": []
+    "section_1_answers": [],
 }
 
 user_db = {}  # База с текущими состояниями пользователей. Ключ словаря - id в тг
