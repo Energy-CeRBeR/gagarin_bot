@@ -6,12 +6,13 @@ from aiogram.types import Message, CallbackQuery
 from messages.user_messages import USER_MESSAGES
 from messages.survey_messages import SECTION_1_QUESTIONS, SECTION_2_QUESTIONS, INCORRECT_DATE, COMPLETE_SURVEY
 
-from services.services import check_date
+from keyboards.keyboards import create_survey_keyboard
+
+from services.services import check_date, get_answers
 
 from database.database import user_db
 
 from states.states import UserSurveyStates
-
 
 router = Router()
 
@@ -47,9 +48,11 @@ async def section_1_processing(message: Message, state: FSMContext):
     else:
         user_db[message.from_user.id]['question_index'] = 0
 
-        await message.answer('as')
         await state.set_state(UserSurveyStates.get_spouse)
-        await message.answer(SECTION_2_QUESTIONS[user_db[message.from_user.id]['question_index']][0], reply_markup=SECTION_2_QUESTIONS[user_db[message.from_user.id]['question_index']][1])
+        await message.answer(
+            SECTION_2_QUESTIONS[user_db[message.from_user.id]['question_index']],
+            reply_markup=create_survey_keyboard()
+        )
 
 
 @router.callback_query(UserSurveyStates.get_spouse, F.data == 'create')
@@ -57,12 +60,15 @@ async def create_spouse(callback: CallbackQuery):
     await callback.message.answer('ФИО супруга/супруги')
 
 
-@router.callback_query(UserSurveyStates.get_spouse, F.data == 'no_creat')
+@router.callback_query(UserSurveyStates.get_spouse, F.data == 'no_create')
 async def no_create_spouse(callback: CallbackQuery, state: FSMContext):
-    user_db[callback.message.from_user.id]['section_2_answers'].append('Нет')
+    user_db[callback.from_user.id]['section_2_answers'].append('Нет')
 
-    user_db[callback.message.from_user.id]['question_index'] += 1
-    await callback.message.answer(await callback.message.answer(SECTION_2_QUESTIONS[user_db[callback.message.from_user.id]['question_index']][0], reply_markup=SECTION_2_QUESTIONS[user_db[callback.message.from_user.id]['question_index']][1]))
+    user_db[callback.from_user.id]['question_index'] += 1
+    await callback.message.edit_text(
+        SECTION_2_QUESTIONS[user_db[callback.from_user.id]['question_index']],
+        reply_markup=create_survey_keyboard()
+    )
 
     await state.set_state(UserSurveyStates.get_childrens)
 
@@ -74,7 +80,10 @@ async def write_supouse(message: Message, state: FSMContext):
     await state.set_state(UserSurveyStates.get_childrens)
 
     user_db[message.from_user.id]['question_index'] += 1
-    await message.answer(await message.answer(SECTION_2_QUESTIONS[user_db[message.from_user.id]['question_index']][0], reply_markup=SECTION_2_QUESTIONS[user_db[message.from_user.id]['question_index']][1]))
+    await message.answer(
+        SECTION_2_QUESTIONS[user_db[message.from_user.id]['question_index']],
+        reply_markup=create_survey_keyboard()
+    )
 
 
 @router.callback_query(UserSurveyStates.get_childrens, F.data == 'create')
@@ -82,17 +91,25 @@ async def create_childrens(callback: CallbackQuery):
     await callback.message.answer('ФИО детей')
 
 
-@router.callback_query(UserSurveyStates.get_childrens, F.data == 'no_creat')
+@router.callback_query(UserSurveyStates.get_childrens, F.data == 'no_create')
 async def no_create_spouse(callback: CallbackQuery, state: FSMContext):
-    user_db[callback.message.from_user.id]['section_2_answers'].append('Нет')
+    user_db[callback.from_user.id]['section_2_answers'].append('Нет')
 
     await callback.message.answer(COMPLETE_SURVEY)
-    await state.clear()
+    await state.set_state(UserSurveyStates.check_answers)
 
 
 @router.message(UserSurveyStates.get_childrens)
 async def write_supouse(message: Message, state: FSMContext):
-    user_db[message.from_user.id]['section_2_answers'].append(message.text)
+    cur_user = user_db[message.from_user.id]
+    cur_user['section_2_answers'].append(message.text)
+    text = get_answers(cur_user['section_1_answers'], cur_user['section_2_answers'])
 
     await message.answer(COMPLETE_SURVEY)
-    await state.clear()
+    await message.answer(text)
+    await state.set_state(UserSurveyStates.check_answers)
+
+
+@router.message(UserSurveyStates.check_answers)
+async def write_answers(message: Message, state: FSMContext):
+    pass

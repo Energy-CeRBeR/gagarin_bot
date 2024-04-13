@@ -14,6 +14,8 @@ class UserSurveyStates(StatesGroup):
     get_spouse = State()
     get_childrens = State()
 
+    check_answers = State()
+
 
 class GlobalStates(StatesGroup):
     new_page = State()

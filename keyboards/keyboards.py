@@ -22,9 +22,12 @@ def create_pages_keyboard(pages: list[dict], param: str):
     return keyboard
 
 
-survey_keyboard = InlineKeyboardMarkup(inline_keyboard=
+def create_survey_keyboard():
+    survey_keyboard = InlineKeyboardMarkup(inline_keyboard=
     [
-        [InlineKeyboardButton(text='Есть', callback_data='create')], 
+        [InlineKeyboardButton(text='Есть', callback_data='create')],
         [InlineKeyboardButton(text='Нет', callback_data='no_create')]
     ]
-)
+    )
+
+    return survey_keyboard

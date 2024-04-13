@@ -1,5 +1,9 @@
 import re
 
+from database.database import user_db
+
+from messages.survey_messages import SECTION_1_QUESTIONS, SECTION_2_QUESTIONS
+
 
 def check_date(str_date):
     pattern = re.compile(r'^\d{2}.\d{2}.\d{4}$')
@@ -8,3 +12,17 @@ def check_date(str_date):
         if 1 <= day <= 31 and 1 <= month <= 12 and year >= 1000:
             return True
     return False
+
+
+def get_answers(section1: list, section2: list):
+    result = "Текущие данные: "
+    for i in range(len(SECTION_1_QUESTIONS)):
+        cur_str = f"{SECTION_1_QUESTIONS[i]}: {section1[i]}\n"
+        result += cur_str
+    result += "\n"
+
+    for i in range(len(SECTION_2_QUESTIONS)):
+        cur_str = f"{SECTION_2_QUESTIONS[i]}: {section2[i]}\n"
+        result += cur_str
+
+    return result

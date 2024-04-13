@@ -1,6 +1,3 @@
-from keyboards.keyboards import survey_keyboard
-
-
 SECTION_1_QUESTIONS: list = [
     'ФИО',
     'Дата рождения (дд.мм.гггг)',
@@ -17,10 +14,9 @@ SECTION_1_QUESTIONS: list = [
 ]
 
 SECTION_2_QUESTIONS: list = [
-    ['Есть супруг/супруга', survey_keyboard],
-    ['Есть дети', survey_keyboard]
+    'Есть супруг/супруга',
+    'Есть дети'
 ]
 
 INCORRECT_DATE = "Некорректный формат даты! Введите дату в формате (дд.мм.гггг)"
 COMPLETE_SURVEY = "Спасибо за данные ответы!"
-
