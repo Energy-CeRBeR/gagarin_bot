@@ -53,6 +53,28 @@ async def back_button_clicked(callback: CallbackQuery):
     await callback.message.delete()
 
 
+@router.message(Command(commands="fill_page"))
+async def select_page_for_fill(message: Message):
+    if message.from_user.id not in user_db:
+        user_db[message.from_user.id] = deepcopy(db_template)
+        return
+
+    if message.from_user.id in user_db:
+        token = user_db[message.from_user.id]["token"]
+        user_db[message.from_user.id] = deepcopy(db_template)
+        user_db[message.from_user.id]["token"] = token
+
+    cur_user = user_db[message.from_user.id]
+    if cur_user["token"]:
+        pages = get_pages(cur_user["token"])
+        await message.answer(
+            text=USER_COMMANDS[message.text]["with_token"],
+            reply_markup=create_pages_keyboard(pages, "fill")
+        )
+    else:
+        await message.answer(USER_COMMANDS[message.text]["no_token"])
+
+
 # Начало регистрации
 @router.message(Command(commands="auth"))
 async def start_auth(message: Message, state: FSMContext):
@@ -110,25 +132,3 @@ async def continue_auth(message: Message, state: FSMContext):
         await message.answer(USER_COMMANDS["/auth"]["success_auth"])
 
     await state.clear()
-
-
-@router.message(Command(commands="fill_page"))
-async def select_page_for_fill(message: Message):
-    if message.from_user.id not in user_db:
-        user_db[message.from_user.id] = deepcopy(db_template)
-        return
-
-    if message.from_user.id in user_db:
-        token = user_db[message.from_user.id]["token"]
-        user_db[message.from_user.id] = deepcopy(db_template)
-        user_db[message.from_user.id]["token"] = token
-
-    cur_user = user_db[message.from_user.id]
-    if cur_user["token"]:
-        pages = get_pages(cur_user["token"])
-        await message.answer(
-            text=USER_COMMANDS[message.text]["with_token"],
-            reply_markup=create_pages_keyboard(pages, "fill")
-        )
-    else:
-        await message.answer(USER_COMMANDS[message.text]["no_token"])
